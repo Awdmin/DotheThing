@@ -1,4 +1,4 @@
-# DotheThing 📋
+# DotheThing
 
 Self-hosted project & bug tracker. One board per project. MongoDB backend. GitHub issues integration. Free drag-and-drop between any column.
 
