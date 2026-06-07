@@ -1,0 +1,57 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: dothetahing-mongo
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - dothetahing
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dothetahing-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "3003:3003"
+    networks:
+      - dothetahing
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ""
+    container_name: dothetahing-frontend
+    restart: unless-stopped
+    env_file:
+      - ./frontend/.env
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+    networks:
+      - dothetahing
+
+volumes:
+  mongo_data:
+    driver: local
+
+networks:
+  dothetahing:
+    driver: bridge
